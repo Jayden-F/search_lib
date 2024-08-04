@@ -20,7 +20,7 @@ class astar[Domain, Expander, Open, Heuristic]:
             node = self.open.pop()
             node.set_expanded(True)
 
-            self.log(node, "expand")
+            self.log(node, "expanding")
 
             if self.expander.goal_check(node):
                 path = []
@@ -33,11 +33,11 @@ class astar[Domain, Expander, Open, Heuristic]:
             edges.clear()
             self.expander.expand(node, edges)
 
-            for edge in edges:
+            for edge, cost in edges:
                 if edge.get_expanded():
                     continue
 
-                g = node.get_g() + 1.0
+                g = node.get_g() + cost
                 f = g + self.heuristic(edge.get_state(), target)
 
                 if self.open.contains(edge):
@@ -45,30 +45,28 @@ class astar[Domain, Expander, Open, Heuristic]:
                         edge.set_g(g)
                         edge.set_f(f)
                         edge.set_parent(node)
-                        self.log(edge, "generate")
+                        self.log(edge, "generating")
                         self.open.decrease_key(edge)
 
                 else:
                     edge.set_g(g)
                     edge.set_f(f)
                     edge.set_parent(node)
-                    self.log(edge, "generate")
+                    self.log(edge, "generating")
                     self.open.push(edge)
 
-            self.log(node, "close")
+            self.log(node, "closing")
 
         return None
 
     def log(self, node, type):
         x, y = node.get_state()
-        byte, bit = self.domain.index(x, y)
-        id = byte * 8 + bit
+        id = self.domain.index(x, y)
 
         pid = None
         if node.get_parent() is not None:
             px, py = node.get_parent().get_state()
-            pbyte, pbit = self.domain.index(px, py)
-            pid = pbyte * 8 + pbit
+            pid = self.domain.index(px, py)
         print(
             f"  - {{ type: {type}, id: {id}, g: {node.get_g()}, h: {node.get_h()}, f: {node.get_f()}, x: {x}, y: {y}, pId: {pid} }}"
         )
@@ -76,24 +74,14 @@ class astar[Domain, Expander, Open, Heuristic]:
     def header(self):
         print("""version: 1.4.0
 views:
-  cell:
+  main:
     - $: rect
       width: 1
       height: 1
-      fill: '#ffff00'
+      fill: ${{color[$.type]}}
       alpha: 1
       x: ${{ $.x }}
       y: ${{ $.y }}
-    - $: rect
-      width: 1
-      height: 1
-      x: ${{ $.x }}
-      y: ${{ $.y }}
-      alpha: ${{ ($.value / 4) ** 2.2 }}
-      fill: '#ff0000'
-  main:
-    - $: cell
-      value: ${{ events.slice(0, step).filter(c=>c.id === $.id).length }}
 pivot:
   x: ${{ $.x + 0.5 }}
   y: ${{ $.y + 0.5 }}
@@ -102,13 +90,11 @@ events:""")
 
     def configuration(self, start, target):
         sx, sy = start
-        sbyte, sbit = self.domain.index(sx, sy)
-        sid = sbyte * 8 + sbit
+        sid = self.domain.index(sx, sy)
 
         print(f"  - {{ type: source, id: {sid}, x: {sx}, y: {sy} }}")
 
         tx, ty = target
-        tbyte, tbit = self.domain.index(tx, ty)
-        tid = tbyte * 8 + tbit
+        tid = self.domain.index(tx, ty)
 
         print(f"  - {{ type: destination, id: {tid}, x: {tx}, y: {ty} }}")
