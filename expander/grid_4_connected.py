@@ -8,6 +8,7 @@ class grid_expander[Node: SearchNode, Pool: NodeMap[SearchNode], Domain: GridMap
         self.domain: Domain = domain
         self.node_pool: Pool = node_pool
         self.goal: None | SearchNode = None
+        self.neighbours = []
 
     def generate_start(self, x: int, y: int) -> SearchNode:
         start = self.node_pool.generate((x, y))
@@ -36,19 +37,19 @@ class grid_expander[Node: SearchNode, Pool: NodeMap[SearchNode], Domain: GridMap
         state = (x, y + 1)
         if self.domain.get(*state):
             node: SearchNode = self.node_pool.generate(state)
-            neighbours.append(node)
+            neighbours.append((node, 1))
 
         state = (x, y - 1)
         if self.domain.get(*state):
             node: SearchNode = self.node_pool.generate(state)
-            neighbours.append(node)
+            neighbours.append((node, 1))
 
         state = (x + 1, y)
         if self.domain.get(*state):
             node: SearchNode = self.node_pool.generate(state)
-            neighbours.append(node)
+            neighbours.append((node, 1))
 
         state = (x - 1, y)
         if self.domain.get(*state):
             node: SearchNode = self.node_pool.generate(state)
-            neighbours.append(node)
+            neighbours.append((node, 1))

@@ -16,7 +16,7 @@ class GridMap:
 
         for i in range(width):
             for j in range(height):
-                if random() <= 0.30:
+                if random() <= 0.0:
                     self.set(i, j, 0)
                 else:
                     self.set(i, j, 1)
@@ -28,19 +28,19 @@ class GridMap:
         return self.height
 
     def set(self, x: int, y: int, value):
-        byte, bit = self.index(x, y)
-        self.grid[byte * 8 + bit] = value
+        bit = self.index(x, y)
+        self.grid[bit] = value
 
     def get(self, x: int, y: int):
-        byte, bit = self.index(x, y)
-        return self.grid[byte * 8 + bit] != 0
+        bit = self.index(x, y)
+        return self.grid[bit] != 0
 
     def index(self, x: int, y: int):
         padded_y = y + 1
         padded_x = x + 1
         bit = padded_x % 8
-        byte = padded_x // 8 + padded_y * self.padded_width_bytes
-        return byte + 8, bit
+        byte = (padded_x // 8 + padded_y * self.padded_width_bytes) + 8
+        return byte * 8 + bit
 
     def write(self, name):
         with open(name, "w") as f:
@@ -48,10 +48,8 @@ class GridMap:
             f.write(f"height {self.height}\n")
             f.write(f"width {self.width}\n")
             f.write(f"map\n")
-            for j in range(self.width):
+            for i in range(self.height):
                 row = ""
-                for i in range(self.height):
-                    row += str(["T", "."][self.get(i,j)])
+                for j in range(self.width):
+                    row += str(["T", "."][self.get(j, i)])
                 f.write(row + "\n")
-
-

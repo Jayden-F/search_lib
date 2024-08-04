@@ -8,7 +8,7 @@ from node_pool.node_map import NodeMap
 from heuristic.manhattan_distance import ManhattanDistance
 
 
-domain: GridMap = GridMap(1000, 1000)
+domain: GridMap = GridMap(200, 100)
 domain.write("test.map")
 node_pool: NodeMap[SearchNode] = NodeMap(SearchNode)
 expander: grid_expander[SearchNode, NodeMap[SearchNode], GridMap] = grid_expander(
@@ -22,6 +22,6 @@ heuristic: ManhattanDistance[State] = ManhattanDistance()
 search = astar(domain, expander, open, heuristic)
 
 start: State = (1, 1)
-target: State = (999, 999)
+target: State = (199, 99)
 
 path: list[SearchNode] | None = search.search(start, target)
